@@ -1,12 +1,11 @@
 import { cn } from '@/lib/utils';
+import type { HTMLAttributes } from 'react';
 
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   glow?: boolean;
 }
 
-export function Card({ children, className, glow }: CardProps) {
+export function Card({ children, className, glow, ...props }: CardProps) {
   return (
     <div
       className={cn(
@@ -14,6 +13,7 @@ export function Card({ children, className, glow }: CardProps) {
         glow && 'shadow-[0_0_30px_rgba(0,200,255,0.07)]',
         className
       )}
+      {...props}
     >
       {children}
     </div>

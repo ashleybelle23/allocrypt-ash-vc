@@ -94,12 +94,7 @@ export function AllocationFlow({ strategy, onClose }: AllocationFlowProps) {
                 {strategy.protocols.join(', ')}
               </span>
             </div>
-            {strategy.minDeposit && (
-              <div className="flex justify-between">
-                <span className="text-zinc-500">Min. deposit</span>
-                <span className="text-zinc-300">{strategy.minDeposit}</span>
-              </div>
-            )}
+
           </div>
 
           {/* Amount input */}

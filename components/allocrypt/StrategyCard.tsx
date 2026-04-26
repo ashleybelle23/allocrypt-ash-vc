@@ -16,9 +16,10 @@ const riskVariant: Record<string, 'green' | 'yellow' | 'orange' | 'red'> = {
 interface StrategyCardProps {
   strategy: Strategy;
   onDeploy?: (strategy: Strategy) => void;
+  onViewDetail?: (strategy: Strategy) => void;
 }
 
-export function StrategyCard({ strategy, onDeploy }: StrategyCardProps) {
+export function StrategyCard({ strategy, onDeploy, onViewDetail }: StrategyCardProps) {
   const chainGradient: Record<string, string> = {
     monad: 'from-[#00c8ff]/10 to-transparent',
     ethereum: 'from-violet-500/10 to-transparent',
@@ -28,7 +29,8 @@ export function StrategyCard({ strategy, onDeploy }: StrategyCardProps) {
   return (
     <Card
       glow
-      className="relative overflow-hidden flex flex-col h-full group hover:border-white/15 transition-all duration-300"
+      onClick={() => onViewDetail?.(strategy)}
+      className="relative overflow-hidden flex flex-col h-full group hover:border-white/15 transition-all duration-300 cursor-pointer"
     >
       <div
         className={`absolute inset-0 bg-gradient-to-br ${chainGradient[strategy.chain]} pointer-events-none`}
@@ -38,7 +40,14 @@ export function StrategyCard({ strategy, onDeploy }: StrategyCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5">
-            <h3 className="font-semibold text-white leading-tight">{strategy.name}</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-semibold text-white leading-tight group-hover:text-[#00c8ff] transition-colors">
+                {strategy.name}
+              </h3>
+              <span className="text-xs text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                ↗
+              </span>
+            </div>
             <div className="flex flex-wrap gap-1.5">
               <ChainBadge chain={strategy.chain} />
               <Badge variant={riskVariant[strategy.risk]}>
@@ -76,17 +85,32 @@ export function StrategyCard({ strategy, onDeploy }: StrategyCardProps) {
             <span className="text-zinc-500">Protocols:</span>
             <span className="text-zinc-400">{strategy.protocols.join(', ')}</span>
           </div>
-          {strategy.minDeposit && (
-            <div className="flex gap-2">
-              <span className="text-zinc-500">Min. deposit:</span>
-              <span className="text-zinc-300">{strategy.minDeposit}</span>
-            </div>
-          )}
+
         </div>
 
-        {/* CTA */}
+        {/* Mini allocation bar preview */}
+        <div className="flex h-1 w-full rounded-full overflow-hidden gap-px">
+          {strategy.assetBreakdown.map((asset) => (
+            <div
+              key={asset.symbol}
+              className={`h-full transition-all duration-300 ${
+                strategy.chain === 'monad'
+                  ? 'bg-[#00c8ff]'
+                  : strategy.chain === 'ethereum'
+                  ? 'bg-violet-400'
+                  : 'bg-[#00ffb3]'
+              }`}
+              style={{ width: `${asset.allocationPct}%`, opacity: 0.35 + asset.allocationPct / 100 }}
+            />
+          ))}
+        </div>
+
+        {/* CTA — stop propagation so it doesn't open the detail modal */}
         <button
-          onClick={() => onDeploy?.(strategy)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeploy?.(strategy);
+          }}
           disabled={strategy.comingSoon}
           className="w-full mt-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200
             disabled:opacity-40 disabled:cursor-not-allowed
